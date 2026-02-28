@@ -11,9 +11,6 @@ const { resourceConfig, libraryOptions } =
 
 Amplify.configure(resourceConfig, libraryOptions);
 
-// amplify's minimum schedule interval is 1 minute, but we need ~30sec granularity for 60sec bets.
-// so we fetch twice per invocation with a 30-second sleep in between.
-// this is a hack to get the job done, not a real solution.
 const TICKER_ID = 'BTCUSDT';
 
 async function fetchAndStoreTick() {
@@ -44,8 +41,19 @@ async function fetchAndStoreTick() {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// amplify's minimum schedule interval is 1 minute, but we need ~30sec granularity for 60sec bets.
+// so we fetch twice per invocation with a 30-second sleep in between.
+// this is a hack to get the job done, not a real solution.
 export const handler: Handler = async () => {
-  await fetchAndStoreTick();
+  try {
+    await fetchAndStoreTick();
+  } catch (e) {
+    console.error('tick 1 failed', e);
+  }
   await sleep(30 * 1000);
-  await fetchAndStoreTick();
+  try {
+    await fetchAndStoreTick();
+  } catch (e) {
+    console.error('tick 2 failed', e);
+  }
 };
