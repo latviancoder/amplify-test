@@ -11,21 +11,19 @@ Amplify.configure(resourceConfig, libraryOptions);
 const STALENESS_THRESHOLD_MS = 2 * 60 * 1000;
 
 export const handler = async (event: { betId: string }) => {
-  console.log('settling bet at ', new Date().toISOString());
   const { betId } = event;
+  console.log(`settling bet ${betId} at ${new Date().toISOString()}`);
 
   const { data: bet } = await client.models.Bet.get({ id: betId });
 
-  console.log({ bet });
-
   if (!bet) {
-    console.log(`Bet ${betId} not found, skipping`);
-    return;
+    console.log(`bet not found`);
+    return { settled: true };
   }
 
   if (bet.status !== 'PENDING') {
-    console.log(`Bet ${betId} is ${bet.status}, skipping`);
-    return;
+    console.log(`bet is ${bet.status}`);
+    return { settled: true };
   }
 
   const { data: btcPrice } = await client.models.BtcPrice.get({
@@ -37,22 +35,25 @@ export const handler = async (event: { betId: string }) => {
   };
 
   if (!btcPrice) {
-    console.log(`No BTC price available, canceling bet ${betId}`);
+    console.log('no price available');
     await cancelBet();
-    return;
+    return { settled: true };
   }
 
   const priceAge = Date.now() - new Date(btcPrice.timestamp).getTime();
   if (priceAge > STALENESS_THRESHOLD_MS) {
-    // stale price, cancel the bet.
-    // could happen if our price fetching is delayed or broken.
-    console.log(`BTC price is stale`);
+    console.log('price is stale');
     await cancelBet();
-    return;
+    return { settled: true };
   }
 
   const currentPrice = btcPrice.price;
   const priceAtBet = bet.priceAtBet;
+
+  if (currentPrice === priceAtBet) {
+    console.log(`price unchanged, will retry`);
+    return { settled: false };
+  }
 
   const won =
     bet.direction === 'UP'
@@ -70,4 +71,6 @@ export const handler = async (event: { betId: string }) => {
   console.log(
     `${betId}, dir: ${bet.direction}, price: ${priceAtBet} -> ${currentPrice}, status: ${status}`
   );
+
+  return { settled: true };
 };
