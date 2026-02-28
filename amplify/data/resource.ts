@@ -5,6 +5,8 @@ import { settleBet } from '../functions/settle-bet/resource';
 
 const schema = a
   .schema({
+    Direction: a.enum(['UP', 'DOWN']),
+    BetStatus: a.enum(['PENDING', 'WON', 'LOST', 'CANCELED']),
     BtcPrice: a
       .model({
         ticker: a.string().required().default('BTCUSDT'),
@@ -15,17 +17,17 @@ const schema = a
     Bet: a
       .model({
         userId: a.string().required(),
-        direction: a.enum(['UP', 'DOWN']),
+        direction: a.ref('Direction').required(),
         priceAtBet: a.float().required(),
         priceAtSettlement: a.float(),
-        status: a.enum(['PENDING', 'WON', 'LOST', 'CANCELED']),
+        status: a.ref('BetStatus').required(),
         placedAt: a.datetime().required(),
         settlesAt: a.datetime().required(),
       })
       .authorization((allow) => [allow.publicApiKey(), allow.guest()]),
     placeBet: a
       .mutation()
-      .arguments({ direction: a.enum(['UP', 'DOWN']) })
+      .arguments({ direction: a.ref('Direction').required() })
       .returns(a.ref('Bet'))
       .handler(a.handler.function(placeBet))
       .authorization((allow) => [allow.guest()]),
