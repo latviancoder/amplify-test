@@ -7,5 +7,5 @@ export const btcPriceListener = defineFunction({
   name: 'btc-price-listener',
   entry: './btc-price-listener.ts',
   schedule: 'every 1m',
-  timeoutSeconds: 90,
+  timeoutSeconds: 60,
 });
