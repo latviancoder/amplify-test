@@ -11,9 +11,12 @@ Amplify.configure(resourceConfig, libraryOptions);
 const STALENESS_THRESHOLD_MS = 2 * 60 * 1000;
 
 export const handler = async (event: { betId: string }) => {
+  console.log('settling bet at ', new Date().toISOString());
   const { betId } = event;
 
   const { data: bet } = await client.models.Bet.get({ id: betId });
+
+  console.log({ bet });
 
   if (!bet) {
     console.log(`Bet ${betId} not found, skipping`);
