@@ -18,14 +18,12 @@ function App() {
   const userId = session.identityId;
 
   useEffect(() => {
-    client.models.BtcPrice.get({ id: TICKER_ID })
-      .then(({ data }) => {
-        if (data) setPrice(data);
-      })
-      .finally(() => setLoading(false));
-
-    const sub = client.models.BtcPrice.onUpdate().subscribe({
-      next: (updated) => setPrice(updated),
+    const sub = client.models.BtcPrice.observeQuery().subscribe({
+      next: ({ items }) => {
+        const match = items.find((p) => p.id === TICKER_ID);
+        if (match) setPrice(match);
+        setLoading(false);
+      },
     });
 
     return () => sub.unsubscribe();
