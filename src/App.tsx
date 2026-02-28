@@ -18,10 +18,11 @@ function App() {
   const userId = session.identityId;
 
   useEffect(() => {
-    client.models.BtcPrice.get({ id: TICKER_ID }).then(({ data }) => {
-      if (data) setPrice(data);
-      setLoading(false);
-    });
+    client.models.BtcPrice.get({ id: TICKER_ID })
+      .then(({ data }) => {
+        if (data) setPrice(data);
+      })
+      .finally(() => setLoading(false));
 
     const sub = client.models.BtcPrice.onUpdate().subscribe({
       next: (updated) => setPrice(updated),
