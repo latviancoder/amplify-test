@@ -104,4 +104,19 @@ test.describe('mocked settlement', () => {
     await expect(youEntry.getByText('LOST')).toBeVisible();
     await expect(youEntry.getByText(/\$50,000 → \$49,000/)).toBeVisible();
   });
+
+  test('bet stays pending when price is unchanged', async ({ page }) => {
+    await mockAppSync(page, { price: 50_000 });
+    await page.goto('/');
+
+    await page.getByRole('button', { name: 'UP' }).click();
+    await expect(page.getByText(/Bet placed: UP at \$50,000/)).toBeVisible();
+
+    // don't call settleBet — price hasn't changed, bet should remain pending
+    await page.reload();
+
+    await expect(page.getByText(/Bet placed: UP at \$50,000/)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'UP' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'DOWN' })).toBeDisabled();
+  });
 });
