@@ -1,8 +1,11 @@
 import { defineFunction } from '@aws-amplify/backend';
 
+// ideally this should be handled by Fargate or some other service that listens to websocket api,
+// which ticks every 1000ms.
+// for the sake of simplicity it's just a lambda that runs every minute.
 export const btcPriceListener = defineFunction({
-  // optionally specify a name for the Function (defaults to directory name)
   name: 'btc-price-listener',
-  // optionally specify a path to your handler (defaults to "./handler.ts")
-  entry: './handler.ts',
+  entry: './btc-price-listener.ts',
+  schedule: 'every 20m',
+  timeoutSeconds: 60,
 });

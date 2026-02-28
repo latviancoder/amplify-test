@@ -24,6 +24,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       .catch(() => setError(true));
   }, []);
 
+  // we need uniq user id for persistence, doesn't make sense to render app without it
   if (error) {
     return (
       <div>

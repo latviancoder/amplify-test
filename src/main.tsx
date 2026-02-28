@@ -1,15 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import { AuthSessionProvider } from './AuthSessionProvider.tsx';
+import './index.css';
 
-import { Amplify } from 'aws-amplify'; 
+import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
- 
-Amplify.configure(outputs); 
+
+Amplify.configure(outputs);
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <AuthSessionProvider>
     <App />
-  </StrictMode>,
-)
+  </AuthSessionProvider>
+);
