@@ -24,7 +24,7 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
   }
 
   // not atomic — there's a small race window between the check and the create,
-  // but it requires the same user to fire two near-simultaneous requests
+  // but it requires the same user to fire two near-simultaneous requests.
   const { data: existingBets } = await client.models.Bet.list({
     filter: {
       userId: { eq: userId },
@@ -56,7 +56,7 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
     settlesAt: settlesAt.toISOString(),
   });
 
-  if (errors) {
+  if (errors || !bet) {
     throw new Error(`failed bet: ${JSON.stringify(errors)}`);
   }
 
@@ -65,16 +65,16 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
     await sfnClient.send(
       new StartExecutionCommand({
         stateMachineArn: env.STATE_MACHINE_ARN,
-        name: `settle-bet-${bet!.id}`,
+        name: `settle-bet-${bet.id}`,
         input: JSON.stringify({
-          betId: bet!.id,
+          betId: bet.id,
           settlesAt: settlesAt.toISOString(),
         }),
-      }),
+      })
     );
   } catch (err) {
     console.error('Failed to start settlement execution, canceling bet:', err);
-    await client.models.Bet.update({ id: bet!.id, status: 'CANCELED' });
+    await client.models.Bet.update({ id: bet.id, status: 'CANCELED' });
     throw new Error('failed to schedule bet settlement');
   }
 
