@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { client } from './client';
 import { useAuthSession } from './AuthSessionProvider';
+import { Scoreboard } from './Scoreboard';
 import type { Schema } from '../amplify/data/resource';
 
 type BtcPrice = Schema['BtcPrice']['type'];
@@ -95,6 +96,8 @@ function App() {
           {new Date(activeBet.settlesAt).toLocaleTimeString()}
         </p>
       )}
+
+      <Scoreboard />
     </div>
   );
 }

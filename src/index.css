@@ -8,3 +8,33 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+th {
+  background: #f5f5f5;
+}
+
+.scoreboard-entry {
+  margin-bottom: 4px;
+}
+
+.scoreboard-entry summary {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.scoreboard-entry table {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}

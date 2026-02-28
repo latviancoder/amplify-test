@@ -1,6 +1,7 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { btcPriceListener } from '../functions/btc-price-listener/resource';
 import { placeBet } from '../functions/place-bet/resource';
+import { settleBet } from '../functions/settle-bet/resource';
 
 const schema = a
   .schema({
@@ -32,6 +33,7 @@ const schema = a
   .authorization((allow) => [
     allow.resource(btcPriceListener),
     allow.resource(placeBet),
+    allow.resource(settleBet),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

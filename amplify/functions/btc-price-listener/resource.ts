@@ -6,6 +6,6 @@ import { defineFunction } from '@aws-amplify/backend';
 export const btcPriceListener = defineFunction({
   name: 'btc-price-listener',
   entry: './btc-price-listener.ts',
-  schedule: 'every 20m',
+  schedule: 'every 1m',
   timeoutSeconds: 60,
 });
