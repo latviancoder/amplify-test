@@ -28,4 +28,9 @@ dist-ssr
 amplify_outputs*
 amplifyconfiguration*
 
-.vite 
+.vite
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
