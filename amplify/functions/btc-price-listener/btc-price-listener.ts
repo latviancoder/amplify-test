@@ -22,7 +22,7 @@ async function fetchAndStoreTick() {
   const timestamp = new Date().toISOString();
 
   // Upsert: try to update existing record, create if it doesn't exist yet
-  const { data } = await client.models.BtcPrice.update({
+  const { data, errors } = await client.models.BtcPrice.update({
     id: TICKER_ID,
     ticker: TICKER_ID,
     price,
@@ -30,6 +30,9 @@ async function fetchAndStoreTick() {
   });
 
   if (!data) {
+    if (errors) {
+      console.log('update failed (item may not exist yet), creating', errors);
+    }
     await client.models.BtcPrice.create({
       id: TICKER_ID,
       ticker: TICKER_ID,

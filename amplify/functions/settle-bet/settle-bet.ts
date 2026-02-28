@@ -62,11 +62,16 @@ export const handler = async (event: { betId: string }) => {
 
   const status = won ? 'WON' : 'LOST';
 
-  await client.models.Bet.update({
+  const { errors } = await client.models.Bet.update({
     id: betId,
     priceAtSettlement: currentPrice,
     status,
   });
+
+  if (errors) {
+    console.error(`failed to update bet ${betId}`, errors);
+    return { settled: false };
+  }
 
   console.log(
     `${betId}, dir: ${bet.direction}, price: ${priceAtBet} -> ${currentPrice}, status: ${status}`

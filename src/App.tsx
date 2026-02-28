@@ -14,6 +14,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeBet, setActiveBet] = useState<Bet | null>(null);
   const [placing, setPlacing] = useState(false);
+  const [betError, setBetError] = useState<string | null>(null);
   const session = useAuthSession();
   const userId = session.identityId;
 
@@ -55,9 +56,13 @@ function App() {
 
   async function placeBet(direction: 'UP' | 'DOWN') {
     setPlacing(true);
+    setBetError(null);
     try {
-      const { data } = await client.mutations.placeBet({ direction });
+      const { data, errors } = await client.mutations.placeBet({ direction });
+      if (errors?.length) throw new Error(errors[0].message);
       if (data) setActiveBet(data as Bet);
+    } catch (e) {
+      setBetError(e instanceof Error ? e.message : 'Failed to place bet');
     } finally {
       setPlacing(false);
     }
@@ -87,6 +92,8 @@ function App() {
           DOWN
         </button>
       </div>
+
+      {betError && <p style={{ color: 'red' }}>{betError}</p>}
 
       {activeBet && (
         <p>
