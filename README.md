@@ -1,3 +1,4 @@
+- Built using AWS Amplify. AppSync gives me real-time, Step Functions solve settlement delay, Amplify persists user session.
 - Do we rely on our DB as source of truth for btc price, or do we completely rely on external API like binance? Each approach has pros and cons. Decision depends on use case.
 - Listening to BTC price is done using lambda which reruns every 60sec and sleeps 30sec (should be something like fargate + websockets instead).
 - There is a race condition that allows users to place multiple bets at the same time.
