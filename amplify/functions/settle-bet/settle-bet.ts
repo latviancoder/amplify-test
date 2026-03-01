@@ -8,6 +8,7 @@ const { resourceConfig, libraryOptions } =
 
 Amplify.configure(resourceConfig, libraryOptions);
 
+// cancel the bet if price data is older than 2 min (likely means the price listener lambda is failing)
 const STALENESS_THRESHOLD_MS = 2 * 60 * 1000;
 
 export const handler = async (event: { betId: string }) => {
@@ -17,6 +18,7 @@ export const handler = async (event: { betId: string }) => {
   const { data: bet } = await client.models.Bet.get({ id: betId });
 
   if (!bet) {
+    // return settled=true to stop the retry loop — no point retrying a nonexistent bet
     console.log(`bet not found`);
     return { settled: true };
   }
@@ -26,6 +28,9 @@ export const handler = async (event: { betId: string }) => {
     return { settled: true };
   }
 
+  // this reads the live price, not the price at settlesAt. If the
+  // function runs even a few seconds late (Step Functions Wait can drift),
+  // the price may have changed.
   const { data: btcPrice } = await client.models.BtcPrice.get({
     id: 'BTCUSDT',
   });

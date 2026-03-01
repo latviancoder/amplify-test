@@ -13,7 +13,7 @@ const schema = a
         price: a.float().required(),
         timestamp: a.datetime().required(),
       })
-      // guests and api key can read prices. only btcPriceListener lambda can write.
+      // api key has full access (used by btcPriceListener lambda). guests can only read.
       .authorization((allow) => [allow.publicApiKey(), allow.guest().to(['read'])]),
     Bet: a
       .model({

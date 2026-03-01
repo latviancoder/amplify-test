@@ -25,6 +25,7 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
 
   // not atomic — there's a small race window between the check and the create,
   // but it requires the same user to fire two near-simultaneous requests.
+  // in ideal world this should use mutex or transaction.
   const { data: existingBets } = await client.models.Bet.list({
     filter: {
       userId: { eq: userId },
