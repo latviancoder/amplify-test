@@ -59,6 +59,7 @@ function App() {
     try {
       const { data, errors } = await client.mutations.placeBet({
         direction,
+        // we don't blindly trust this price on the backend
         priceAtBet: price!.price,
       });
       if (errors?.length) throw new Error(errors[0].message);
