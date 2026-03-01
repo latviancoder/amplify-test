@@ -14,6 +14,7 @@ Amplify.configure(resourceConfig, libraryOptions);
 const TICKER_ID = 'BTCUSDT';
 
 async function fetchAndStoreTick() {
+  // this is very naive. should use fallback & monitoring.
   const btcTicker: { price: string } = await fetch(
     'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
   ).then((res) => res.json());

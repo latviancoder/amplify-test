@@ -13,7 +13,8 @@ const schema = a
         price: a.float().required(),
         timestamp: a.datetime().required(),
       })
-      .authorization((allow) => [allow.publicApiKey(), allow.guest()]),
+      // guests and api key can read prices. only btcPriceListener lambda can write.
+      .authorization((allow) => [allow.publicApiKey(), allow.guest().to(['read'])]),
     Bet: a
       .model({
         userId: a.string().required(),
@@ -24,14 +25,19 @@ const schema = a
         placedAt: a.datetime().required(),
         settlesAt: a.datetime().required(),
       })
-      .authorization((allow) => [allow.publicApiKey(), allow.guest()]),
+      // guests can read bets for scoreboard. only lambdas can create/update.
+      .authorization((allow) => [allow.guest().to(['read'])]),
     placeBet: a
       .mutation()
-      .arguments({ direction: a.ref('Direction').required() })
+      .arguments({
+        direction: a.ref('Direction').required(),
+        priceAtBet: a.float().required(),
+      })
       .returns(a.ref('Bet'))
       .handler(a.handler.function(placeBet))
       .authorization((allow) => [allow.guest()]),
   })
+  // grant full access to all lambdas at schema level
   .authorization((allow) => [
     allow.resource(btcPriceListener),
     allow.resource(placeBet),
