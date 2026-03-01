@@ -24,7 +24,7 @@ cfnGraphqlApi.introspectionConfig = 'ENABLED';
 // 2. invoke settle-bet lambda to check the price.
 // 3. if price changed, the bet is settled (won/lost). done.
 // 4. if price hasn't changed, wait 10s and retry from step 2.
-// number 4 covers the requirement "The guess is resolved when the price changes",
+// step 4 ensures the bet isn't settled until the price actually moves,
 // although unchanged btc price is probably highly unlikely.
 // we retry forever which is A BAD IDEA. should add max retry limit or timeout.
 
