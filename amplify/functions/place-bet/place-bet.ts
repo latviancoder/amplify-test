@@ -15,7 +15,7 @@ const sfnClient = new SFNClient();
 const BET_SETTLE_TIME = 60 * 1000;
 
 export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
-  const { direction } = event.arguments;
+  const { direction, priceAtBet: clientPrice } = event.arguments;
   const identity = event.identity as { cognitoIdentityId?: string } | undefined;
   const userId = identity?.cognitoIdentityId;
 
@@ -44,13 +44,21 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
     throw new Error('no btc price available');
   }
 
+  // reject if price drifted since the client saw it. no slippage tolerance.
+  // price the user sees on screen can differ from the price the server reads at bet placement time. The user sees $95,000, clicks "UP", but by the
+  // time the Lambda runs, the DB price is $95,050. The user thinks they bet against $95,000 but the system locked them in at $95,050 - leading to
+  // confusing outcomes.
+  if (btcPrice.price !== clientPrice) {
+    throw new Error('price has changed since you saw it — please try again');
+  }
+
   const now = new Date();
   const settlesAt = new Date(now.getTime() + BET_SETTLE_TIME);
 
   const { data: bet, errors } = await client.models.Bet.create({
     userId,
     direction,
-    priceAtBet: btcPrice.price,
+    priceAtBet: clientPrice,
     status: 'PENDING',
     placedAt: now.toISOString(),
     settlesAt: settlesAt.toISOString(),

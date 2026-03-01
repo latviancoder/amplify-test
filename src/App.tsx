@@ -58,7 +58,10 @@ function App() {
     setPlacing(true);
     setBetError(null);
     try {
-      const { data, errors } = await client.mutations.placeBet({ direction });
+      const { data, errors } = await client.mutations.placeBet({
+        direction,
+        priceAtBet: price!.price,
+      });
       if (errors?.length) throw new Error(errors[0].message);
       if (data) setActiveBet(data as Bet);
     } catch (e) {
@@ -70,7 +73,7 @@ function App() {
 
   if (loading) return <>Loading...</>;
 
-  const betDisabled = placing || !!activeBet;
+  const betDisabled = placing || !!activeBet || !price;
 
   return (
     <div>

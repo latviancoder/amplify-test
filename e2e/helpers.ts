@@ -1,38 +1,5 @@
 import type { Page } from '@playwright/test';
 
-/**
- * Intercept AppSync GraphQL requests and return a controlled BTC price
- * for any BtcPrice query. All other requests (mutations, other queries)
- * pass through unmodified.
- */
-export async function mockBtcPrice(page: Page, price: number) {
-  await page.route('https://*.appsync-api.*.amazonaws.com/graphql', (route) => {
-    const body = route.request().postData() ?? '';
-
-    if (body.includes('BtcPrice')) {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          data: {
-            getBtcPrice: {
-              id: 'BTCUSDT',
-              ticker: 'BTCUSDT',
-              price,
-              timestamp: new Date().toISOString(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              __typename: 'BtcPrice',
-            },
-          },
-        }),
-      });
-    }
-
-    return route.continue();
-  });
-}
-
 interface MockBet {
   id: string;
   userId: string;
@@ -63,6 +30,8 @@ export async function mockAppSync(page: Page, options: { price: number }) {
   const state = {
     bets: [] as MockBet[],
     capturedUserId: '',
+    placeBetError: null as string | null,
+    currentPrice: options.price,
   };
 
   await page.route('https://*.appsync-api.*.amazonaws.com/graphql', (route) => {
@@ -81,21 +50,36 @@ export async function mockAppSync(page: Page, options: { price: number }) {
       state.capturedUserId = filterUserId;
     }
 
-    // BtcPrice query
+    const btcPriceItem = {
+      id: 'BTCUSDT',
+      ticker: 'BTCUSDT',
+      price: options.price,
+      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      __typename: 'BtcPrice',
+    };
+
+    // BtcPrice get query
     if (body.includes('getBtcPrice')) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { getBtcPrice: btcPriceItem } }),
+      });
+    }
+
+    // BtcPrice list query (used by observeQuery)
+    if (body.includes('listBtcPrices')) {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
           data: {
-            getBtcPrice: {
-              id: 'BTCUSDT',
-              ticker: 'BTCUSDT',
-              price: options.price,
-              timestamp: new Date().toISOString(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              __typename: 'BtcPrice',
+            listBtcPrices: {
+              items: [btcPriceItem],
+              nextToken: null,
+              __typename: 'ModelBtcPriceConnection',
             },
           },
         }),
@@ -104,13 +88,34 @@ export async function mockAppSync(page: Page, options: { price: number }) {
 
     // placeBet mutation
     if (body.includes('placeBet')) {
+      if (state.placeBetError) {
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { placeBet: null },
+            errors: [{ message: state.placeBetError }],
+          }),
+        });
+      }
       const direction = parsed.variables?.direction ?? 'UP';
+      const clientPrice = parsed.variables?.priceAtBet;
+      if (clientPrice !== undefined && clientPrice !== state.currentPrice) {
+        return route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { placeBet: null },
+            errors: [{ message: 'price has changed since you saw it — please try again' }],
+          }),
+        });
+      }
       const now = new Date();
       const bet: MockBet = {
         id: `mock-bet-${Date.now()}`,
         userId: state.capturedUserId || 'mock-user',
         direction,
-        priceAtBet: options.price,
+        priceAtBet: clientPrice ?? state.currentPrice,
         priceAtSettlement: null,
         status: 'PENDING',
         placedAt: now.toISOString(),
@@ -163,6 +168,14 @@ export async function mockAppSync(page: Page, options: { price: number }) {
         bet.status = status;
         bet.priceAtSettlement = priceAtSettlement;
       }
+    },
+    /** Make the next placeBet call return an error. */
+    rejectPlaceBet(message: string) {
+      state.placeBetError = message;
+    },
+    /** Change the server-side price (simulates drift). */
+    setPrice(newPrice: number) {
+      state.currentPrice = newPrice;
     },
   };
 }
