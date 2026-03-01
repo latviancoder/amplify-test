@@ -1,5 +1,6 @@
 import type { Schema } from '../../data/resource';
 import { client } from '../../client';
+import { TICKER_ID } from '../../constants';
 import { env } from '$amplify/env/place-bet';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { Amplify } from 'aws-amplify';
@@ -38,7 +39,7 @@ export const handler: Schema['placeBet']['functionHandler'] = async (event) => {
   }
 
   const { data: btcPrice } = await client.models.BtcPrice.get({
-    id: 'BTCUSDT',
+    id: TICKER_ID,
   });
 
   if (!btcPrice) {

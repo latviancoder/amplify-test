@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { client } from './client';
-import { useAuthSession } from './AuthSessionProvider';
-import { Scoreboard } from './Scoreboard';
 import type { Schema } from '../amplify/data/resource';
+import { useAuthSession } from './AuthSessionProvider';
+import { client } from './client';
+import { Scoreboard } from './Scoreboard';
+import { TICKER_ID } from '../amplify/constants';
 
 type BtcPrice = Schema['BtcPrice']['type'];
 type Bet = Schema['Bet']['type'];
-
-const TICKER_ID = 'BTCUSDT';
 
 function App() {
   const [price, setPrice] = useState<BtcPrice | null>(null);

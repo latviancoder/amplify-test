@@ -11,12 +11,12 @@ const { resourceConfig, libraryOptions } =
 
 Amplify.configure(resourceConfig, libraryOptions);
 
-const TICKER_ID = 'BTCUSDT';
+import { TICKER_ID } from '../../constants';
 
 async function fetchAndStoreTick() {
   // this is very naive. should use fallback & monitoring.
   const btcTicker: { price: string } = await fetch(
-    'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
+    `https://api.binance.com/api/v3/ticker/price?symbol=${TICKER_ID}`
   ).then((res) => res.json());
 
   const price = Number(btcTicker.price);

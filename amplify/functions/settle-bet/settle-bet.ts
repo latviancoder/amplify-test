@@ -1,4 +1,5 @@
 import { client } from '../../client';
+import { TICKER_ID } from '../../constants';
 import { env } from '$amplify/env/settle-bet';
 import { getAmplifyDataClientConfig } from '@aws-amplify/backend/function/runtime';
 import { Amplify } from 'aws-amplify';
@@ -32,7 +33,7 @@ export const handler = async (event: { betId: string }) => {
   // function runs even a few seconds late (Step Functions Wait can drift),
   // the price may have changed.
   const { data: btcPrice } = await client.models.BtcPrice.get({
-    id: 'BTCUSDT',
+    id: TICKER_ID,
   });
 
   const cancelBet = async () => {
