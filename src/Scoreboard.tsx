@@ -14,6 +14,7 @@ function Scoreboard() {
     const sub = client.models.Bet.observeQuery().subscribe({
       next: ({ items }) => {
         const settled = items
+          // canceled bets are not shown on the scoreboard
           .filter((b) => b.status === 'WON' || b.status === 'LOST')
           .sort(
             (a, b) =>
@@ -46,7 +47,6 @@ function Scoreboard() {
       })
       .sort((a, b) => b.score - a.score);
   }, [bets, userId]);
-
 
   return (
     <div style={{ marginTop: 32 }}>
