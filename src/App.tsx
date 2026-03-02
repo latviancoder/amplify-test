@@ -8,6 +8,7 @@ import { TICKER_ID } from '../amplify/constants';
 type BtcPrice = Schema['BtcPrice']['type'];
 type Bet = Schema['Bet']['type'];
 
+
 function App() {
   const [price, setPrice] = useState<BtcPrice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,34 +77,34 @@ function App() {
   const betDisabled = placing || !!activeBet || !price;
 
   return (
-    <div>
+    <div className="app-container">
       <h1>BTC Price</h1>
       {price ? (
-        <p>
-          ${price.price.toLocaleString()} —{' '}
-          {new Date(price.timestamp).toLocaleTimeString()}
+        <p className="price-display">
+          ${price.price.toLocaleString()}
+          <small>{new Date(price.timestamp).toLocaleTimeString()}</small>
         </p>
       ) : (
         <p>No price data yet</p>
       )}
 
-      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-        <button disabled={betDisabled} onClick={() => placeBet('UP')}>
+      <div className="bet-actions">
+        <button className="btn-up" disabled={betDisabled} onClick={() => placeBet('UP')}>
           UP
         </button>
-        <button disabled={betDisabled} onClick={() => placeBet('DOWN')}>
+        <button className="btn-down" disabled={betDisabled} onClick={() => placeBet('DOWN')}>
           DOWN
         </button>
       </div>
 
-      {betError && <p style={{ color: 'red' }}>{betError}</p>}
+      {betError && <p className="error-msg">{betError}</p>}
 
       {activeBet && (
-        <p>
+        <div className="active-bet">
           Bet placed: {activeBet.direction} at $
           {activeBet.priceAtBet.toLocaleString()} — settles{' '}
           {new Date(activeBet.settlesAt).toLocaleTimeString()}
-        </p>
+        </div>
       )}
 
       <Scoreboard />

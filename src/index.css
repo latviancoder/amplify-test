@@ -2,6 +2,9 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  font-size: 18px;
+  color: #1a1a1a;
+  background: #fafafa;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -9,6 +12,75 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.price-display {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.price-display small {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #888;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.bet-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn-up,
+.btn-down {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 48px;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.btn-up {
+  background: #00c853;
+}
+
+.btn-down {
+  background: #ff1744;
+}
+
+.btn-up:disabled,
+.btn-down:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.active-bet {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.error-msg {
+  color: #ff1744;
+  margin-top: 12px;
+}
+
+/* Scoreboard styles */
 table {
   border-collapse: collapse;
   width: 100%;
