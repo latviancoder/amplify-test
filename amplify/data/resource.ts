@@ -13,8 +13,8 @@ const schema = a
         price: a.float().required(),
         timestamp: a.datetime().required(),
       })
-      // api key has full access (used by btcPriceListener lambda). guests can only read.
-      .authorization((allow) => [allow.publicApiKey(), allow.guest().to(['read'])]),
+      // guests and api key can only read. btcPriceListener has full access via schema-level auth.
+      .authorization((allow) => [allow.publicApiKey().to(['read']), allow.guest().to(['read'])]),
     Bet: a
       .model({
         userId: a.string().required(),
